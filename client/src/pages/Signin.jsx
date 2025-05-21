@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 function Signin() {
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { loading, error } = useSelector((state) => state.user)
 
   const [formdata, setFormdata] = useState({
     email: '',
     password: ''
   })
-
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
 
   const handleChange = (e) => {
     setFormdata({...formdata, [e.target.id]: e.target.value})
@@ -19,22 +20,26 @@ function Signin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setError(false)
-    const res = await fetch('/api/auth/signin', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(formdata)
-    })
-    const data = await res.json()
-    console.log(data)
-    setLoading(false)
-    navigate("/")
-    if(data.success == false) {
-      setError(true)
-      return
+    dispatch(signInStart())
+    try {
+      const res = await fetch('/api/auth/signin', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formdata)
+      })
+      const data = await res.json()
+      console.log(data)
+      if(data.success == false) {
+        dispatch(signInFailure(data))
+        return
+      }
+      dispatch(signInSuccess(data))
+      navigate("/")
+    } catch (error) {
+      dispatch(signInFailure(error))
+      console.log(error)
     }
   }
 
@@ -81,7 +86,7 @@ function Signin() {
             CONTINUE WITH GOOGLE
           </button>
         </div>
-        <p className='text-red-600 mt-5'>{error && "Something Went Wrong"}</p>
+        <p className='text-red-600 mt-5 text-xs'>{error && (error.message || "Something Went Wrong")}</p>
         <p className="text-center text-sm mt-4">
           Don't Have an Account?{' '}
           <Link to="/signup" className="text-blue-600 hover:underline">
