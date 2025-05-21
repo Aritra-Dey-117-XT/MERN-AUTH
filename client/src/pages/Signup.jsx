@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Signup() {
+
+  const navigate = useNavigate()
 
   const [formdata, setFormdata] = useState({
     username: '',
@@ -30,6 +32,7 @@ function Signup() {
     const data = await res.json()
     console.log(data)
     setLoading(false)
+    navigate("/signin")
     if(data.success == false) {
       setError(true)
       return
@@ -89,9 +92,9 @@ function Signup() {
         </div>
         <p className='text-red-600 mt-5'>{error && "Something Went Wrong"}</p>
         <p className="text-center text-sm mt-4">
-          Have an account?{' '}
+          Already Have an Account?{' '}
           <Link to="/signin" className="text-blue-600 hover:underline">
-            Sign in
+            Sign In
           </Link>
         </p>
       </div>
