@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import OAuth from '../components/OAuth';
 
 function Signin() {
 
@@ -81,11 +82,8 @@ function Signin() {
           </button>
         </form>
 
-        <div className="mt-4">
-          <button className="w-full py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700">
-            CONTINUE WITH GOOGLE
-          </button>
-        </div>
+        <OAuth />
+
         <p className='text-red-600 mt-5 text-xs'>{error && (error.message || "Something Went Wrong")}</p>
         <p className="text-center text-sm mt-4">
           Don't Have an Account?{' '}

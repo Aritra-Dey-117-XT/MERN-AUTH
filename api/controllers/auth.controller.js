@@ -35,3 +35,42 @@ export const signin = async (req, res, next) => {
         next(error)
     }
 }
+
+export const google = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email })
+        if(user) {
+            const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: "1h"})
+            const { password:_, ...userData } = user._doc
+            return res.cookie("access_token", token, {
+                httpOnly: true,
+                maxAge: 3600000,
+                sameSite: true
+            })
+            .status(201)
+            .json(userData)
+        } else {
+            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
+            const hashedPassword = await bcryptjs.hash(generatedPassword, 15)
+            const username = req.body.name.split(" ").join("").toLowerCase() + Math.floor(Math.random() * 10000).toString()
+            const newUser = new User({
+                username,
+                email: req.body.email,
+                password: hashedPassword,
+                profileImage: req.body.photo
+            })
+            await newUser.save()
+            const {password:_, ...userData} = newUser._doc
+            const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET, {expiresIn: "1h"})
+            return res.cookie("access_token", token, {
+                httpOnly: true,
+                maxAge: 3600000,
+                sameSite: true
+            })
+            .status(201)
+            .json(userData)
+        }
+    } catch (error) {
+        next(error)
+    }
+}
