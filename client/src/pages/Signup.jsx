@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
 
@@ -39,13 +39,6 @@ function Signup() {
       return
     }
   }
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

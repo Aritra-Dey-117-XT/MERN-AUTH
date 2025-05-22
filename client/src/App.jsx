@@ -5,6 +5,8 @@ import Signup from './pages/Signup'
 import About from './pages/About'
 import Profile from './pages/Profile'
 import Header from './components/Header'
+import PrivateRoute from './components/PrivateRoute.jsx'
+import RedirectRoute from './components/RedirectRoute.jsx'
 
 export default function App() {
   return (
@@ -12,11 +14,18 @@ export default function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route element={<RedirectRoute destination="/"/>}>
+          <Route path="/signin" element={<Signin />} />
+        </Route>
+        <Route element={<RedirectRoute destination="/"/>}>
+          <Route path="/signup" element={<Signup />} />
+        </Route>
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route element={<PrivateRoute/>}>
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+        
       </Routes>
     </BrowserRouter>
   )

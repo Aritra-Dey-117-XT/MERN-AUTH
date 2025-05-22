@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -43,13 +43,6 @@ function Signin() {
       console.log(error)
     }
   }
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
