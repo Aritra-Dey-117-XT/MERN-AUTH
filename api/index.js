@@ -38,6 +38,6 @@ app.use((err, req, res, next) => {
     })
 })
 
-app.get('*', (req, res) => {
+app.get('/{*any}', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
 })
