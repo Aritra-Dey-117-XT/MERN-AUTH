@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import { app } from '../firebase';
+import { updateUserStart, updateUserSuccess, updateUserFailure } from '../redux/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 function Profile() {
 
   const fileRef = useRef()
+  const dispatch = useDispatch()
+  const { currentUser, loading, error } = useSelector((state) => state.user)
   const [image, setImage] = useState(undefined)
   const [uploading, setUploading] = useState(false)
   const [imagePercentage, setImagePercentage] = useState(0)
   const [imageError, setImageError] = useState(null)
-  const { currentUser } = useSelector((state) => state.user)
   const [formdata, setFormdata] = useState({
     username: currentUser.username,
     email: currentUser.email,
@@ -41,20 +43,41 @@ function Profile() {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setFormdata({...formdata, profileImage: downloadURL})
+          setUploading(false)
         })
       }
-    ).then(() => setUploading(false))
-
+    )
   }
 
-  const handleUpdate = () => {
-    // Add update logic here (API call etc.)
-    alert('Profile updated!');
+  const handleUpdate = async (e) => {
+    e.preventDefault()
+    try {
+      dispatch(updateUserStart())
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type" : "application/json",
+        },
+        body: JSON.stringify(formdata)
+      })
+      console.log(`/api/user/update/${currentUser._id}`)
+      console.log(JSON.stringify(formdata))
+      console.log("Response:" + res)
+      const data = await res.json()
+      if(data.success == false) {
+        dispatch(updateUserFailure(data))
+        return
+      }
+      dispatch(updateUserSuccess(data))
+    } catch (error) {
+      dispatch(updateUserFailure(error))
+      console.log("Error: ", error.message)
+    }
   };
 
-  const handleDelete = () => {
-    // Add delete logic here
-    alert('Account deleted');
+    const handleDelete = () => {
+    // Add update logic here (API call etc.)
+    alert('Profile updated!');
   };
 
   const handleSignOut = () => {
@@ -66,7 +89,7 @@ function Profile() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <h1 className="text-3xl font-bold mb-6">Profile</h1>
 
-      <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+      <form className="flex flex-col items-center bg-white p-8 rounded-lg shadow-md w-full max-w-sm" onSubmit={handleUpdate}>
         <input 
           type="file"
           ref={fileRef}
@@ -119,10 +142,10 @@ function Profile() {
         />
 
         <button
-          onClick={handleUpdate}
           className="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-900"
+          disabled={loading}
         >
-          UPDATE
+          {loading ? "Updating..." : "UPDATE"}
         </button>
 
         <div className="flex justify-between w-full mt-6">
@@ -139,7 +162,7 @@ function Profile() {
             Sign out
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
